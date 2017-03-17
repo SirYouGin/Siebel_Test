@@ -11,6 +11,9 @@ namespace Siebel_DataControl
 {
     class Program
     {
+        enum SiebelViewModeConstants { SalesRepView, ManagerView, PersonalView, AllView, NoneSetView, OrgView, ContactView, SubOrgView, GroupView, CatalogView };
+        enum SiebelQueryConstants {ForwardBackward, ForwardOnly};
+
         private static SiebelDataControl app;
 
         private static int ErrorCode = 0;
@@ -62,9 +65,11 @@ namespace Siebel_DataControl
             app = new SiebelDataControl();
             app.EnableExceptions(0);
 
+            // Examples:
+
             //ConnectMode.Server
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
-            connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
+            //connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
 
             //ConnectMode.Local
             //connString = "lang=\"ENU\" cfg=\"C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\\fins.cfg, ServerDataSrc\"";            
@@ -81,15 +86,15 @@ namespace Siebel_DataControl
 
             bc.ClearToQuery(); checkError();
 
-            bc.SetViewMode(3); checkError();
+            bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
 
             bc.SetSearchSpec("First Name", "*"); checkError();
 
-            bc.ExecuteQuery(1); checkError();
+            bc.ExecuteQuery(Convert.ToInt16(SiebelQueryConstants.ForwardOnly)); checkError();
 
             bool isRecord = bc.FirstRecord(); checkError();
 
-            string fname;
+            string fname;                    
 
             while (isRecord)
             {
@@ -104,6 +109,8 @@ namespace Siebel_DataControl
             Console.Write("\nDisconnect from Siebel...");
             success = app.Logoff();
             Console.WriteLine("{0}\n"+ (success ? "OK":"Failed"));
+
+            Console.WriteLine("Press any key to close application.");
             Console.ReadKey();
         }
     }

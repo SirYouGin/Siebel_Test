@@ -74,6 +74,7 @@ namespace Siebel_DataServer
             SiebelBusComp bc = bo.GetBusComp("Contact", ref ErrorCode); checkError();
 
             bc.ClearToQuery(ref ErrorCode); checkError();
+          
 
             bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView), ref ErrorCode); checkError();
 
@@ -96,6 +97,8 @@ namespace Siebel_DataServer
             }
 
             Console.WriteLine("\nDisconnect from Siebel...OK\n");
+
+            Console.WriteLine("Press any key to close application.");
             Console.ReadKey();
         }
 
