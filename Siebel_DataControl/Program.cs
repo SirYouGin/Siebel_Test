@@ -26,7 +26,11 @@ namespace Siebel_DataControl
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(s);
                 Console.ResetColor();
-                Trace.WriteLine(s);                
+                Trace.WriteLine(s);
+
+                Console.WriteLine("Press any key to close application.");
+                Console.ReadKey();
+
                 Environment.Exit(ErrorCode);
             }
         }
