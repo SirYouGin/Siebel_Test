@@ -21,12 +21,14 @@ namespace Siebel_DataServer
                 string s = "ErrCode: "+ ErrorCode+" ErrMsg: "+app.GetLastErrText();
                 if (Enum.IsDefined(typeof(SiebelEnumErrCode), (Int32)ErrorCode))
                 {
-                    s = s + " Siebel Error: " + (SiebelEnumErrCode)ErrorCode;
+                    s = s + " Siebel Desc: " + (SiebelEnumErrCode)ErrorCode;
                 }
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(s);
+                Console.ResetColor();
                 Trace.WriteLine(s);
 
-                Console.WriteLine("Press any key to close application.");
+                Console.WriteLine("\nPress any key to close application.");
                 Console.ReadKey();
 
                 Environment.Exit(ErrorCode);                                              

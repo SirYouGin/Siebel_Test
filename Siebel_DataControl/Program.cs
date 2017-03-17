@@ -13,6 +13,117 @@ namespace Siebel_DataControl
     {
         enum SiebelViewModeConstants { SalesRepView, ManagerView, PersonalView, AllView, NoneSetView, OrgView, ContactView, SubOrgView, GroupView, CatalogView };
         enum SiebelQueryConstants {ForwardBackward, ForwardOnly};
+        public enum SiebelEnumErrCode
+        {
+            SSGenErrInternal = 4096,
+            SSELErrAppletNotActive = 4097,
+            SSELErrAppletHasNoBusComp = 4098,
+            SSELErrBadNewWhere = 4099,
+            SSELErrBadViewModeNum = 4100,
+            SSELErrControlNotInApplet = 4101,
+            SSELErrGotoViewActiveBusObj = 4102,
+            SSELErrInactiveApplet = 4103,
+            SSELErrMethodNotSupported = 4104,
+            SSELErrNoAppletName = 4105,
+            SSELErrNoControlName = 4106,
+            SSELErrNoVariableName = 4107,
+            SSELErrNoViewName = 4108,
+            SSELErrNotAssocList = 4109,
+            SSELErrOutOfScope = 4110,
+            SSELErrUnknownApplet = 4111,
+            SSELErrUnknownControl = 4112,
+            SSELErrUnknownView = 4113,
+            SSOleErrOleDisabled = 4114,
+            SSOleErrInternal = 4115,
+            SSOleErrMemory = 4116,
+            SSOleErrMissingAppletArg = 4117,
+            SSOleErrMissingControlArg = 4118,
+            SSOleErrMissingStringArg = 4119,
+            SSOleErrMissingOrInvalidConfigFile = 4120,
+            SSOleErrStringArrayExpected = 4121,
+            SSOleErrUnableToLogin = 4122,
+            SSOMErrActRowChanged = 4123,
+            SSOMErrActiveRow = 4124,
+            SSOMErrAddAssoc = 4125,
+            SSOMErrAssocCurRow = 4126,
+            SSOMErrAssocList = 4127,
+            SSOMErrBOBusComp = 4128,
+            SSOMErrBOQuerySyntax = 4129,
+            SSOMErrBoundedPick = 4130,
+            SSOMErrBusObjProp = 4131,
+            SSOMErrConstrBusComp = 4132,
+            SSOMErrContextSyntax = 4133,
+            SSOMErrDeleteRecord = 4134,
+            SSOMErrEOWS = 4135,
+            SSOMErrEmptyMVGParent = 4136,
+            SSOMErrEnd = 4137,
+            SSOMErrExec = 4138,
+            SSOMErrGetBusComp = 4139,
+            SSOMErrGetContext = 4140,
+            SSOMErrGetMVGroup = 4141,
+            SSOMErrGetQuerySpec = 4142,
+            SSOMErrGotoBookmark = 4143,
+            SSOMErrHome = 4144,
+            SSOMErrInvalidLogin = 4145,
+            SSOMErrMVGCopyRec = 4146,
+            SSOMErrMVGQuery = 4147,
+            SSOMErrMVSrcInactive = 4148,
+            SSOMErrNewRecIdValue = 4149,
+            SSOMErrNewRecord = 4150,
+            SSOMErrNextRecord = 4151,
+            SSOMErrNextSet = 4152,
+            SSOMErrNoAssocList = 4153,
+            SSOMErrNoAssocMVGAllowed = 4154,
+            SSOMErrNoDelete = 4155,
+            SSOMErrNoInsert = 4156,
+            SSOMErrParentBCRequired = 4157,
+            SSOMErrParentMVGEmpty = 4158,
+            SSOMErrPickCurRow = 4159,
+            SSOMErrPopupRequired = 4160,
+            SSOMErrPriorRecord = 4161,
+            SSOMErrPriorSet = 4162,
+            SSOMErrScrollWorkSet = 4163,
+            SSOMErrSearchNotSupp = 4164,
+            SSOMErrSetActiveRow = 4165,
+            SSOMErrSetContext = 4166,
+            SSOMErrSetFieldValue = 4167,
+            SSOMErrSetMVGPrimaryId = 4168,
+            SSOMErrSortNotSupp = 4169,
+            SSOMErrUpdRecord = 4170,
+            SSOMErrUserAbort = 4171,
+            SSSqlErrAssocObj = 4172,
+            SSSqlErrBOF = 4173,
+            SSSqlErrDupConflict = 4174,
+            SSSqlErrDupConflict2 = 4175,
+            SSSqlErrEOF = 4176,
+            SSSqlErrEndNoSort = 4177,
+            SSSqlErrEndTrx = 4178,
+            SSSqlErrEvalFieldExpr = 4179,
+            SSSqlErrFieldExist = 4180,
+            SSSqlErrFieldNoQBE = 4181,
+            SSSqlErrFieldReadOnly = 4182,
+            SSSqlErrFieldSearch = 4183,
+            SSSqlErrLogon = 4184,
+            SSSqlErrRecordDeleted = 4185,
+            SSSqlErrReqField = 4186,
+            SSSqlErrRsltsDiscarded = 4187,
+            SSELErrBadAssocWhere = 4188,
+            SSELErrBadDrilldownName = 4189,
+            SSCorbaErrCorbaDisabled = 4190,
+            SSCorbaErrInternal = 4191,
+            SSCorbaErrMemory = 4192,
+            SSCorbaErrMissingAppletArg = 4193,
+            SSCorbaErrMissingControlArg = 4194,
+            SSCorbaErrMissingStringArg = 4195,
+            SSCorbaErrMissingOrInvalidConfigFile = 4196,
+            SSCorbaErrStringArrayExpected = 4197,
+            SSCorbaErrUnableToLogin = 4198,
+            SSELErrBusCompNameRequired = 4199,
+            SSELErrCannotCreateService = 4200,
+            SSELErrMethodNameRequired = 4201,
+            SSELErrServiceNameRequired = 4202,
+            SSELErrUserDefinedError = 4203
+        };
 
         private static SiebelDataControl app;
 
@@ -23,12 +134,16 @@ namespace Siebel_DataControl
             if (ErrorCode != 0)
             {
                 string s = "ErrCode: " + ErrorCode + " ErrMsg: " + app.GetLastErrText();
+                if (Enum.IsDefined(typeof(SiebelEnumErrCode), (Int32)ErrorCode))
+                {
+                    s = s + " Siebel Desc: " + (SiebelEnumErrCode)ErrorCode;
+                }
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(s);
                 Console.ResetColor();
                 Trace.WriteLine(s);
 
-                Console.WriteLine("Press any key to close application.");
+                Console.WriteLine("\nPress any key to close application.");
                 Console.ReadKey();
 
                 Environment.Exit(ErrorCode);
@@ -72,7 +187,7 @@ namespace Siebel_DataControl
             // Examples:
 
             //ConnectMode.Server
-            //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
+            connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
 
             //ConnectMode.Local
@@ -112,7 +227,7 @@ namespace Siebel_DataControl
 
             Console.Write("\nDisconnect from Siebel...");
             success = app.Logoff();
-            Console.WriteLine("{0}\n"+ (success ? "OK":"Failed"));
+            Console.WriteLine("{0}\n", (success ? "OK":"Failed"));
 
             Console.WriteLine("Press any key to close application.");
             Console.ReadKey();
