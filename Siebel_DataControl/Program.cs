@@ -20,7 +20,7 @@ namespace Siebel_DataControl
             bool success = app.Login(connString, "SADMIN", "SADMIN");
             if (!success)
             {
-                int ErrCode = app.GetLastErrCode();
+                int ErrCode = app.GetLastErrCode(); //4122 error
                 string ErrMsg = app.GetLastErrText();
                 string err = String.Format("Connection failed. ErrCode: {0}, ErrMessage: {1}", ErrCode, ErrMsg);
                 Trace.WriteLine(err);
