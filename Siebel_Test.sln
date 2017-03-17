@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siebel_DataServer", "Siebel_Test\Siebel_DataServer.csproj", "{89378696-2365-4D37-B6B7-8B6F78BF41C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siebel_DataServer", "Siebel_DataServer\Siebel_DataServer.csproj", "{89378696-2365-4D37-B6B7-8B6F78BF41C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siebel_DataControl", "Siebel_DataControl\Siebel_DataControl.csproj", "{A00D45E0-5C2D-469B-A930-87EDB03213B0}"
 EndProject

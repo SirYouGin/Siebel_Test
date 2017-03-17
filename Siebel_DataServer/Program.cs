@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using SiebelDataServer;
 
-namespace Siebel_Test
+namespace Siebel_DataServer
 {
     class Program
     {
