@@ -95,7 +95,8 @@ namespace Siebel_DataServer
                 isRecord = bc.NextRecord(ref ErrorCode); checkError();
             }
 
-            Console.WriteLine("\nDisconnect from Siebel.");
+            Console.WriteLine("\nDisconnect from Siebel...OK\n");
+            Console.ReadKey();
         }
 
     }

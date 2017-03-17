@@ -11,8 +11,22 @@ namespace Siebel_DataControl
 {
     class Program
     {
-        enum ConnectMode { Local, Server};
+        private static SiebelDataControl app;
 
+        private static int ErrorCode = 0;
+        private static void checkError()
+        {
+            ErrorCode = app.GetLastErrCode();
+            if (ErrorCode != 0)
+            {
+                string s = "ErrCode: " + ErrorCode + " ErrMsg: " + app.GetLastErrText();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(s);
+                Console.ResetColor();
+                Trace.WriteLine(s);                
+                Environment.Exit(ErrorCode);
+            }
+        }
         private static void printUsage()
         {
             Console.WriteLine("Usage:");
@@ -24,14 +38,13 @@ namespace Siebel_DataControl
             Console.WriteLine("   DataSource\t - section name in Siebel configuration file");
             Console.WriteLine("");
             Console.WriteLine("Example for server mode:");
-            Console.WriteLine("  Siebel_DataControl \"lang='ENU' host='siebel://serv1:2321/SBA_84/FINSObjMgr_rus'");
+            Console.WriteLine("  Siebel_DataControl lang='ENU' host='siebel://serv1:2321/SBA_84/FINSObjMgr_rus'");
             Console.WriteLine("Example for local mode:");
-            Console.WriteLine("  Siebel_DataControl \"lang='ENU' cfg='C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\fins.cfg,ServerDataSrc'");
+            Console.WriteLine("  Siebel_DataControl lang='ENU' cfg='C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\fins.cfg,ServerDataSrc'");
             Console.WriteLine("");
-            ConsoleColor cl = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine("https://docs.oracle.com/cd/B40099_02/books/OIRef/OIRefProgramming45.html#wp1006173");
-            Console.ForegroundColor = cl;
+            Console.ResetColor();
         }
         static void Main(string[] args)
         {
@@ -41,31 +54,57 @@ namespace Siebel_DataControl
                 Environment.Exit(-1);
             }
 
+            Dictionary<string, string> fields = new Dictionary<string, string>();
+
             string connString = String.Join(" ", args);
             connString = connString.Replace('\'', '"');
 
-            SiebelDataControl app = new SiebelDataControl();
+            app = new SiebelDataControl();
             app.EnableExceptions(0);
 
             //ConnectMode.Server
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
-            connString = "lang=\"ENU\" host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_enu\"";
+            connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
 
             //ConnectMode.Local
             //connString = "lang=\"ENU\" cfg=\"C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\\fins.cfg, ServerDataSrc\"";            
 
-            Console.WriteLine("Try establish connection to Siebel with connectString: "+connString);
-            bool success = app.Login(connString, "SADMIN", "SADMIN");
-            if (!success)
+            Console.Write("try connect to Siebel with connectString: \"{0}\"...",connString);
+            bool success = app.Login(connString, "SADMIN", "SADMIN");              
+            Console.WriteLine("{0}\n", (success ? "OK" :"Failed"));
+
+            checkError();
+
+            SiebelBusObject bo = app.GetBusObject("Contact"); checkError();
+
+            SiebelBusComp bc = bo.GetBusComp("Contact"); checkError();
+
+            bc.ClearToQuery(); checkError();
+
+            bc.SetViewMode(3); checkError();
+
+            bc.SetSearchSpec("First Name", "*"); checkError();
+
+            bc.ExecuteQuery(1); checkError();
+
+            bool isRecord = bc.FirstRecord(); checkError();
+
+            string fname;
+
+            while (isRecord)
             {
-                int ErrCode = app.GetLastErrCode(); //4122 error
-                string ErrMsg = app.GetLastErrText();
-                string err = String.Format("Connection failed. ErrCode: {0}, ErrMessage: {1}", ErrCode, ErrMsg);
-                Trace.WriteLine(err);
-                Console.WriteLine(err);
-                Environment.Exit(ErrCode);
+                fname = "Id"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
+                fname = "First Name"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
+                fname = "Last Name"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
+                Console.WriteLine("Id=" + fields["Id"] + " FirstName=" + fields["First Name"] + " Last Name=" + fields["Last Name"]);
+                fields.Clear();
+                isRecord = bc.NextRecord(); checkError();
             }
-            Console.WriteLine("Successfully connected.");
+
+            Console.Write("\nDisconnect from Siebel...");
+            success = app.Logoff();
+            Console.WriteLine("{0}\n"+ (success ? "OK":"Failed"));
+            Console.ReadKey();
         }
     }
 }
