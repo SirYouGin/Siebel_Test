@@ -187,7 +187,7 @@ namespace Siebel_DataControl
             // Examples:
 
             //ConnectMode.Server
-            connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
+            //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
 
             //ConnectMode.Local
