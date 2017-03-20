@@ -7,8 +7,8 @@
     <ProjectGuid>{89378696-2365-4D37-B6B7-8B6F78BF41C7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Siebel_Test</RootNamespace>
-    <AssemblyName>Siebel_Test</AssemblyName>
+    <RootNamespace>Siebel_DataServer</RootNamespace>
+    <AssemblyName>Siebel_DataServer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
