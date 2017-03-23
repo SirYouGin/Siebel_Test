@@ -164,9 +164,100 @@ namespace Siebel_DataControl
             Console.WriteLine("Example for local mode:");
             Console.WriteLine("  Siebel_DataControl lang='ENU' cfg='C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\fins.cfg,ServerDataSrc'");
             Console.WriteLine("");
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("https://docs.oracle.com/cd/B40099_02/books/OIRef/OIRefProgramming45.html#wp1006173");
-            Console.ResetColor();
+            Console.WriteLine("Requires:");
+            Console.WriteLine("    Oracle Client installation");
+            Console.WriteLine("    Siebel Web Client installation");
+            
+        }
+
+        private static string repositoryId;
+
+        private static void initRepository()
+        {
+            SiebelBusObject bo = app.GetBusObject("Repository Business Component"); checkError();
+
+            SiebelBusComp bc = bo.GetBusComp("Repository Business Component"); checkError();
+
+            bc.ClearToQuery(); checkError();
+
+            bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
+
+            //bc.SetSearchSpec("Name", "LIKE 'Repository *' And [Name] <> 'Repository Details' And [Name] <> 'Repository Entity Relationship Diagram' And [Name] Not Like 'Repository IFMgr*'");
+            bc.SetSearchExpr("[Name] = 'Repository Field'");
+
+
+            checkError();
+
+            bc.ExecuteQuery(Convert.ToInt16(SiebelQueryConstants.ForwardOnly)); checkError();
+
+            bool isRecord = bc.FirstRecord(); checkError();
+
+            uint i = 0;
+            while (isRecord)
+            {                
+                i = i + 1;
+                Console.WriteLine(" Name=" + bc.GetFieldValue("Name") + " (" + "Id=" + bc.GetFieldValue("Id") + ")");                
+                isRecord = bc.NextRecord(); checkError();
+            }
+
+            Console.WriteLine("\n Total recs: {0}", i);
+
+            repositoryId = bc.GetFieldValue("Id"); checkError();
+
+            Console.WriteLine("repositotyId = " + repositoryId);            
+        }
+
+        private static void ListObjects(string p_bo, string p_bc, string filter, string fields)
+        {
+            SiebelBusObject bo = app.GetBusObject(p_bo); checkError();
+
+            SiebelBusComp bc = bo.GetBusComp(p_bc); checkError();
+
+            bc.ClearToQuery(); checkError();
+
+            bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
+
+            string[] list = null; 
+
+            if (!String.IsNullOrEmpty(fields))
+            {
+                list = fields.Split(',');
+
+                foreach (string s in list)
+                {
+                    if (!bc.ActivateField(s.Trim())) throw new FieldAccessException("Field \""+s.Trim()+"\" is not active.") ;
+                    checkError();
+                }
+            }
+
+            if (!String.IsNullOrEmpty(filter))
+            {
+                //bc.SetSearchSpec("Repository Id", uid);
+                bc.SetSearchExpr(filter);
+                checkError();
+            }            
+
+            bc.ExecuteQuery(Convert.ToInt16(SiebelQueryConstants.ForwardOnly)); checkError();
+
+            bool isRecord = bc.FirstRecord(); checkError();
+            uint i = 0;
+            while (isRecord)
+            {
+                if (i > 30) break;
+                i = i + 1;                
+                Console.WriteLine(" Name=" + bc.GetFieldValue("Name")+ " ("+ "Id=" + bc.GetFieldValue("Id")+")");
+
+                if (list != null)
+                {
+                    foreach (string s in list)
+                    {
+                        Console.WriteLine("\t " + s + " : " + bc.GetFieldValue(s));
+                    }
+                }               
+                isRecord = bc.NextRecord(); checkError();
+            }
+
+            Console.WriteLine("\n Total recs: {0}", i);
         }
         static void Main(string[] args)
         {
@@ -199,31 +290,12 @@ namespace Siebel_DataControl
 
             checkError();
 
-            SiebelBusObject bo = app.GetBusObject("Contact"); checkError();
+            initRepository();
 
-            SiebelBusComp bc = bo.GetBusComp("Contact"); checkError();
-
-            bc.ClearToQuery(); checkError();
-
-            bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
-
-            bc.SetSearchSpec("First Name", "*"); checkError();
-
-            bc.ExecuteQuery(Convert.ToInt16(SiebelQueryConstants.ForwardOnly)); checkError();
-
-            bool isRecord = bc.FirstRecord(); checkError();
-
-            string fname;                    
-
-            while (isRecord)
-            {
-                fname = "Id"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
-                fname = "First Name"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
-                fname = "Last Name"; fields.Add(fname, bc.GetFieldValue(fname)); checkError();
-                Console.WriteLine("Id=" + fields["Id"] + " FirstName=" + fields["First Name"] + " Last Name=" + fields["Last Name"]);
-                fields.Clear();
-                isRecord = bc.NextRecord(); checkError();
-            }
+            //ListObjects("Repository Project", "Repository Project", "[Name] LIKE 'Repository*'", "Comments");
+            // "[Parent Id]='1-1-KOFZ'"
+            //"Parent Id, Type, Inactive, Column, Read Only,"
+            ListObjects("Repository Business Component", "Repository Field", "[Parent Id]='"+repositoryId+"' and [Force Active] = 'Y'", "Parent Id"); 
 
             Console.Write("\nDisconnect from Siebel...");
             success = app.Logoff();
