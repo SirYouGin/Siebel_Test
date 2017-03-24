@@ -171,8 +171,8 @@ namespace Siebel_DataControl
         }
 
         private static string repositoryId;
-
-        private static void initRepository()
+        private static string repositoryName;
+        private static void initRepository(string repositoryName)
         {
             SiebelBusObject bo = app.GetBusObject("Repository Business Component"); checkError();
 
@@ -183,7 +183,7 @@ namespace Siebel_DataControl
             bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
 
             //bc.SetSearchSpec("Name", "LIKE 'Repository *' And [Name] <> 'Repository Details' And [Name] <> 'Repository Entity Relationship Diagram' And [Name] Not Like 'Repository IFMgr*'");
-            bc.SetSearchExpr("[Name] = 'Repository Field'");
+            bc.SetSearchExpr("[Name] = '"+repositoryName+"'");
 
 
             checkError();
@@ -192,17 +192,24 @@ namespace Siebel_DataControl
 
             bool isRecord = bc.FirstRecord(); checkError();
 
+            repositoryId = null;
+
             uint i = 0;
             while (isRecord)
             {                
                 i = i + 1;
-                Console.WriteLine(" Name=" + bc.GetFieldValue("Name") + " (" + "Id=" + bc.GetFieldValue("Id") + ")");                
+                Console.WriteLine(" Name=" + bc.GetFieldValue("Name") + " (" + "Id=" + bc.GetFieldValue("Id") + ")");
+
+                if (repositoryId == null)
+                {
+                    repositoryId = bc.GetFieldValue("Id"); checkError();
+                }
+
                 isRecord = bc.NextRecord(); checkError();
             }
 
-            Console.WriteLine("\n Total recs: {0}", i);
-
-            repositoryId = bc.GetFieldValue("Id"); checkError();
+            Console.WriteLine("\n Total recs: {0}", i);            
+            
 
             Console.WriteLine("repositotyId = " + repositoryId);            
         }
@@ -269,6 +276,7 @@ namespace Siebel_DataControl
 
             Dictionary<string, string> fields = new Dictionary<string, string>();
 
+            
             string connString = String.Join(" ", args);
             connString = connString.Replace('\'', '"');
 
@@ -279,7 +287,7 @@ namespace Siebel_DataControl
 
             //ConnectMode.Server
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
-            //connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
+            connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
 
             //ConnectMode.Local
             //connString = "lang=\"ENU\" cfg=\"C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\\fins.cfg, ServerDataSrc\"";            
@@ -290,12 +298,29 @@ namespace Siebel_DataControl
 
             checkError();
 
-            initRepository();
+            initRepository("Repository Field");
 
             //ListObjects("Repository Project", "Repository Project", "[Name] LIKE 'Repository*'", "Comments");
             // "[Parent Id]='1-1-KOFZ'"
             //"Parent Id, Type, Inactive, Column, Read Only,"
-            ListObjects("Repository Business Component", "Repository Field", "[Parent Id]='"+repositoryId+"' and [Force Active] = 'Y'", "Parent Id"); 
+            ListObjects("Repository Business Component", "Repository Field", "[Parent Id]='"+repositoryId+"' and [Force Active] = 'Y'", "Parent Id");
+
+            repositoryName = "Repository Business Object";
+            Console.WriteLine("\nInit Reporsitory \"{0}\"...", repositoryName);
+            initRepository(repositoryName);
+            Console.WriteLine("\nRead Reporsitory \"{0}\"...", repositoryId);
+            ListObjects("Repository Business Component", "Repository Field", "[Parent Id]='" + repositoryId + "' and [Force Active] = 'Y'", "Parent Id");
+
+            //1-1-KDBX Repository Business Service
+
+            string filter = "[Name] = 'Repository Business Service'";
+            Console.WriteLine("\nRead List \"{0}\" using mask \"{1}\"...", "Business Object", filter);
+            ListObjects("Repository Business Object", "Repository Business Object", filter, "Query List Business Component");
+
+            filter = null;
+            Console.WriteLine("\nRead List \"{0}\" using mask \"{1}\"...", "Business Object", filter ?? "*");
+            ListObjects("Repository Business Object", "Query List", filter, "Business Object, Owner Id, Query");
+
 
             Console.Write("\nDisconnect from Siebel...");
             success = app.Logoff();
