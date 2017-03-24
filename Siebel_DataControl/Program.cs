@@ -172,6 +172,10 @@ namespace Siebel_DataControl
 
         private static string repositoryId;
         private static string repositoryName;
+        private static string filter;
+        private static string root;
+        private static string node;
+
         private static void initRepository(string repositoryName)
         {
             SiebelBusObject bo = app.GetBusObject("Repository Business Component"); checkError();
@@ -220,7 +224,7 @@ namespace Siebel_DataControl
 
             SiebelBusComp bc = bo.GetBusComp(p_bc); checkError();
 
-            bc.ClearToQuery(); checkError();
+            
 
             bc.SetViewMode(Convert.ToInt16(SiebelViewModeConstants.AllView)); checkError();
 
@@ -230,19 +234,31 @@ namespace Siebel_DataControl
             {
                 list = fields.Split(',');
 
-                foreach (string s in list)
+                if (list.Length > 1)
                 {
-                    if (!bc.ActivateField(s.Trim())) throw new FieldAccessException("Field \""+s.Trim()+"\" is not active.") ;
+                    SiebelPropertySet set = app.NewPropertySet();
+                    foreach (string s in list)
+                    {                        
+                        set.SetProperty(s.Trim(), "");                        
+                    }
+                    bc.ActivateMultipleFields(set);
+                    checkError();
+                }
+                else
+                {
+                    bc.ActivateField(list[0]);
                     checkError();
                 }
             }
+
+            bc.ClearToQuery(); checkError();
 
             if (!String.IsNullOrEmpty(filter))
             {
                 //bc.SetSearchSpec("Repository Id", uid);
                 bc.SetSearchExpr(filter);
                 checkError();
-            }            
+            }
 
             bc.ExecuteQuery(Convert.ToInt16(SiebelQueryConstants.ForwardOnly)); checkError();
 
@@ -258,7 +274,7 @@ namespace Siebel_DataControl
                 {
                     foreach (string s in list)
                     {
-                        Console.WriteLine("\t " + s + " : " + bc.GetFieldValue(s));
+                        Console.WriteLine("\t " + s.Trim() + " : " + bc.GetFieldValue(s.Trim()));
                     }
                 }               
                 isRecord = bc.NextRecord(); checkError();
@@ -287,7 +303,7 @@ namespace Siebel_DataControl
 
             //ConnectMode.Server
             //connString = "host=\"siebel://serv1:2321/SBA_84/FINSObjMgr_rus\"";
-            connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_rus\"";
+            connString = "host=\"siebel://serv1:2321/SBA_84/FINSeSalesObjMgr_enu\"";
 
             //ConnectMode.Local
             //connString = "lang=\"ENU\" cfg=\"C:\\Siebel\\15.0.0.0.0\\Client\\BIN\\enu\\fins.cfg, ServerDataSrc\"";            
@@ -313,13 +329,15 @@ namespace Siebel_DataControl
 
             //1-1-KDBX Repository Business Service
 
-            string filter = "[Name] = 'Repository Business Service'";
+            filter = "[Name] = 'Repository Business Service'";
             Console.WriteLine("\nRead List \"{0}\" using mask \"{1}\"...", "Business Object", filter);
             ListObjects("Repository Business Object", "Repository Business Object", filter, "Query List Business Component");
 
+            root = "Query List";
+            node = "Admin Query List";
             filter = null;
-            Console.WriteLine("\nRead List \"{0}\" using mask \"{1}\"...", "Business Object", filter ?? "*");
-            ListObjects("Repository Business Object", "Query List", filter, "Business Object, Owner Id, Query");
+            Console.WriteLine("\nRead List \"{0}\" using mask \"{1}\"...", root, filter ?? "*");
+            ListObjects(root, node, filter, "Business Object, Query, Owner Id");
 
 
             Console.Write("\nDisconnect from Siebel...");
